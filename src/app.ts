@@ -12,6 +12,3 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 export default app;
-
-//Dristy Roll: 128087
-//Reg No: 1812688135
