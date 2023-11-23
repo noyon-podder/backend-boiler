@@ -1,4 +1,7 @@
-export type IGuardian = {
+import { HydratedDocument } from 'mongoose';
+import { Model } from 'mongoose';
+
+export type TGuardian = {
   fathersName: string;
   fatherOccupation: string;
   fatherContactNo: string;
@@ -7,22 +10,22 @@ export type IGuardian = {
   motherContactNo: string;
 };
 
-export type IStudentName = {
+export type TStudentName = {
   firstName: string;
   middleName: string;
   lastName: string;
 };
 
-export type ILocalGuardian = {
+export type TLocalGuardian = {
   name: string;
   occupation: string;
   contactNumber: string;
   address: string;
 };
 
-export type IStudent = {
+export type TStudent = {
   id: string;
-  name: IStudentName;
+  name: TStudentName;
   gender: 'male' | 'female';
   dateOfBirth?: string;
   email: string;
@@ -31,8 +34,39 @@ export type IStudent = {
   bloodGroup?: 'A-' | 'A' | 'O+' | 'O-' | 'AB-' | 'AB+' | 'B+' | 'B-';
   presentAddress: string;
   permanentAddress: string;
-  guardian: IGuardian;
-  localGuarding: ILocalGuardian;
+  guardian: TGuardian;
+  localGuarding: TLocalGuardian;
   isActive: 'active' | 'inActive';
   profileImage?: string;
 };
+
+//* create a custom instance method
+
+// export type StudentMethods = {
+//   isStudentExist(id: string): Promise<TStudent>;
+// };
+
+// export type StudentModel = Model<
+//   TStudent,
+//   Record<string, never>,
+//   StudentMethods
+// >;
+
+//* for creating custom static method
+
+// export interface StudentModel extends Model<TStudent> {
+//   isStudentExist(id: string): Promise<TStudent>;
+// }
+
+//* for creating custom  both static and instance method
+
+export type TStudentMethods = {
+  isStudentExist(id: string): Promise<TStudent>;
+};
+
+export interface StudentModel
+  extends Model<TStudent, Record<string, never>, TStudentMethods> {
+  isStudentExist(
+    id: string,
+  ): Promise<HydratedDocument<TStudent, TStudentMethods>>;
+}

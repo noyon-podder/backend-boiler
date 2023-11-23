@@ -1,12 +1,15 @@
 import { Schema, model } from 'mongoose';
 import {
-  IGuardian,
-  ILocalGuardian,
-  IStudent,
-  IStudentName,
+  StudentModel,
+  TGuardian,
+  TLocalGuardian,
+  TStudent,
+  TStudentMethods,
+  TStudentName,
 } from './stundent.interface';
+import validator from 'validator';
 
-const studentNameSchema = new Schema<IStudentName>({
+const studentNameSchema = new Schema<TStudentName>({
   firstName: {
     type: String,
     // trim remove unnesecery space
@@ -29,10 +32,14 @@ const studentNameSchema = new Schema<IStudentName>({
     type: String,
     trim: true,
     required: [true, 'Last name is required'],
+    validate: {
+      validator: (value: string) => validator.isAlpha(value),
+      message: '{VALUE} is not valid ',
+    },
   },
 });
 
-const localGuardianSchema = new Schema<ILocalGuardian>({
+const localGuardianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
     required: [true, 'Local guardian name is required'],
@@ -51,7 +58,7 @@ const localGuardianSchema = new Schema<ILocalGuardian>({
   },
 });
 
-const guardianSchema = new Schema<IGuardian>({
+const guardianSchema = new Schema<TGuardian>({
   fathersName: {
     type: String,
     required: [true, "Father's name is required"],
@@ -78,7 +85,7 @@ const guardianSchema = new Schema<IGuardian>({
   },
 });
 
-const studentSchema = new Schema<IStudent>({
+const studentSchema = new Schema<TStudent, StudentModel, TStudentMethods>({
   id: {
     type: String,
     required: [true, 'Student ID is required'],
@@ -103,6 +110,10 @@ const studentSchema = new Schema<IStudent>({
     type: String,
     required: [true, 'Email is required'],
     unique: true,
+    validate: {
+      validator: (value: string) => validator.isEmail(value),
+      message: '{VALUE} is not valid email',
+    },
   },
   contactNumber: {
     type: String,
@@ -143,7 +154,37 @@ const studentSchema = new Schema<IStudent>({
   },
 });
 
+//* creating a custom static method
+
+// studentSchema.statics.isStudentExist = async function (id: string) {
+//   const existingStudent = Student.findOne({ id });
+
+//   return existingStudent;
+// };
+
+//* custom instance method
+
+// studentSchema.methods.isStudentExist = async function (id: string) {
+//   const existingUsr = Student.findOne({ id });
+
+//   return existingUsr;
+// };
+
+//* create custom both static and instance method
+
+studentSchema.statics.isStudentExist = async function (id: string) {
+  const existingStudent = Student.findOne({ id });
+
+  return existingStudent;
+};
+
+studentSchema.methods.isStudentExist = async function (id: string) {
+  const existingStudent = Student.findOne({ id });
+
+  return existingStudent;
+};
+
 // create model
-const Student = model<IStudent>('Student', studentSchema);
+const Student = model<TStudent, StudentModel>('Student', studentSchema);
 
 export default Student;
