@@ -1,4 +1,4 @@
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { Model } from 'mongoose';
 
 export type TGuardian = {
@@ -25,10 +25,12 @@ export type TLocalGuardian = {
 
 export type TStudent = {
   id: string;
+  user: Types.ObjectId;
   name: TStudentName;
   gender: 'male' | 'female';
   dateOfBirth?: string;
   email: string;
+  password: string;
   contactNumber: string;
   emergencyContactNumber: string;
   bloodGroup?: 'A-' | 'A' | 'O+' | 'O-' | 'AB-' | 'AB+' | 'B+' | 'B-';
@@ -36,8 +38,8 @@ export type TStudent = {
   permanentAddress: string;
   guardian: TGuardian;
   localGuarding: TLocalGuardian;
-  isActive: 'active' | 'inActive';
   profileImage?: string;
+  isDeleted: boolean;
 };
 
 //* create a custom instance method
@@ -61,7 +63,7 @@ export type TStudent = {
 //* for creating custom  both static and instance method
 
 export type TStudentMethods = {
-  isStudentExist(id: string): Promise<TStudent>;
+  isStudentExist(id: string): Promise<TStudent | null>;
 };
 
 export interface StudentModel

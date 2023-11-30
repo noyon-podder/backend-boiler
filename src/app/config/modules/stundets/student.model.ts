@@ -91,6 +91,12 @@ const studentSchema = new Schema<TStudent, StudentModel, TStudentMethods>({
     required: [true, 'Student ID is required'],
     unique: true,
   },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    unique: true,
+    required: [true, 'User id must be needed!'],
+  },
   name: {
     type: studentNameSchema,
     required: [true, 'Student name is required'],
@@ -144,31 +150,14 @@ const studentSchema = new Schema<TStudent, StudentModel, TStudentMethods>({
     type: localGuardianSchema,
     required: [true, 'Local guardian information is required'],
   },
-  isActive: {
-    type: String,
-    enum: ['active', 'inActive'],
-    default: 'active',
-  },
   profileImage: {
     type: String,
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
-
-//* creating a custom static method
-
-// studentSchema.statics.isStudentExist = async function (id: string) {
-//   const existingStudent = Student.findOne({ id });
-
-//   return existingStudent;
-// };
-
-//* custom instance method
-
-// studentSchema.methods.isStudentExist = async function (id: string) {
-//   const existingUsr = Student.findOne({ id });
-
-//   return existingUsr;
-// };
 
 //* create custom both static and instance method
 
@@ -183,6 +172,22 @@ studentSchema.methods.isStudentExist = async function (id: string) {
 
   return existingStudent;
 };
+
+// query middleware
+
+studentSchema.pre('findOne', function (next) {
+  this.find({ isDeleted: { $ne: true } });
+
+  next();
+});
+
+// query middleware
+
+studentSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+
+  next();
+});
 
 // create model
 const Student = model<TStudent, StudentModel>('Student', studentSchema);
